@@ -15,7 +15,7 @@
 | ▶️ Play a live round | https://pulserooms.vercel.app/room/live-1 |
 | 📊 **Live scale dashboard** (shard distribution, table internals) | https://pulserooms.vercel.app/scale |
 | 🏆 Global leaderboard | https://pulserooms.vercel.app/leaderboard |
-| 📦 Repo | _<add your repo URL>_ |
+| 📦 Repo | https://github.com/manojmallick/pulserooms |
 | 👥 Team ID | _<add your hackathon Team ID>_ |
 | 🎬 Demo video | _<add link — script in §7>_ |
 
