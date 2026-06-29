@@ -2,6 +2,16 @@
 
 **Track 3 · Million-scale Global App · Amazon DynamoDB + Global Tables**
 
+[![Live](https://img.shields.io/badge/▶_Live_Demo-pulserooms.vercel.app-7C3AED?style=for-the-badge&logo=vercel&logoColor=white)](https://pulserooms.vercel.app)
+&nbsp;[![Play](https://img.shields.io/badge/🎮_Play_a_round-live--1-22D3EE?style=for-the-badge)](https://pulserooms.vercel.app/room/live-1)
+&nbsp;[![Deck](https://img.shields.io/badge/Pitch-DECK.pdf-EF4444?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](./DECK.pdf)
+
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Amazon DynamoDB](https://img.shields.io/badge/Amazon_DynamoDB-4053D6?style=flat-square&logo=amazondynamodb&logoColor=white)
+![AWS SDK v3](https://img.shields.io/badge/AWS_SDK_v3-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
+
 Thousands of players join one live round, answer against a timer, and climb a
 worldwide leaderboard updating in real time — architected to absorb **millions of
 concurrent answer-writes without a hot partition**.
@@ -10,7 +20,21 @@ concurrent answer-writes without a hot partition**.
 > the data model, the write-sharding, and the load-test proof below.
 
 🎮 **Live:** https://pulserooms.vercel.app · ▶️ play https://pulserooms.vercel.app/room/live-1
-📦 **Judges start here:** [`SUBMISSION.md`](SUBMISSION.md) · 🗺️ [`docs/architecture.md`](docs/architecture.md)
+📦 **Judges start here:** [`SUBMISSION.md`](SUBMISSION.md) · 🗺️ [`docs/architecture.md`](docs/architecture.md) · 📊 [`DECK.pdf`](./DECK.pdf)
+
+## Architecture
+
+```mermaid
+flowchart LR
+  P[🌍 Players<br/>Next.js on Vercel] -->|answer| SUB["/api/answer/submit"]
+  SUB -->|"server-grade + atomic ADD score"| T[(DynamoDB · PulseRooms<br/>single table)]
+  SUB -->|"index at TRUE total"| G1[GSI1 · write-sharded<br/>SHARD#room#0..N]
+  SUB --> PR[PLAYER#/PROFILE<br/>+ ROOM# history]
+  T --> G2[GSI2 · season board<br/>SEASON#id]
+  LB["/api/leaderboard"] -->|scatter-gather N shards| G1
+  LB -->|single query| G2
+  P -->|view board| LB
+```
 
 ---
 
