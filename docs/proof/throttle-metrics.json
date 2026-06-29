@@ -1,0 +1,14 @@
+{
+  "table": {
+    "totalThrottleEvents": 0,
+    "datapoints": []
+  },
+  "GSI1": {
+    "totalThrottleEvents": 0,
+    "datapoints": []
+  },
+  "GSI2": {
+    "totalThrottleEvents": 0,
+    "datapoints": []
+  }
+}
