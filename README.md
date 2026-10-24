@@ -238,6 +238,42 @@ pnpm dev                            # → http://localhost:3000/room/live-1
 `aws dynamodb update-table --replica-updates …` (requires Streams, which the
 provisioner enables).
 
+### Environment variables
+
+Copy `.env.example` to `.env.local`.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `AWS_REGION` | `us-east-1` | Region of the DynamoDB table |
+| `AWS_ROLE_ARN` | none | Preferred: assume this role through Vercel OIDC, no static keys. Locally `vercel env pull .env.local` adds the short-lived `VERCEL_OIDC_TOKEN` |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` | none | Fallback static credentials for local provisioning and seeding (needs `dynamodb:*` on the table; the session token only for temporary credentials) |
+| `PULSEROOMS_TABLE` | `PulseRooms` | Table name |
+| `LEADERBOARD_SHARDS` | `10` | Write shards per room leaderboard partition. Must be the same for writes and scatter-gather reads; raise it for rooms expecting more than about 1,000 writes per second |
+| `SEASON_ID` | `2026-S1` | Active season for the global seasonal leaderboard (GSI2) |
+| `WS_API_ENDPOINT` | none | Optional API Gateway WebSocket endpoint used by the Streams Lambda to push leaderboard updates. Leave empty locally; the UI then polls `/api/leaderboard` |
+| `LOADGEN_ROLE_ARN` | none | Optional, for `loadgen:deploy`: a pre-made Lambda role, so only `lambda:*` permissions are needed |
+
+### Scripts
+
+| Command | What it does |
+|---|---|
+| `pnpm dev`, `build`, `start`, `lint` | Standard Next.js commands |
+| `pnpm ddb:provision` | Create the table, GSIs and Streams (on-demand billing); no-op if it exists |
+| `pnpm ddb:reset` | Recreate the table (**deletes all data**) and seed it |
+| `pnpm ddb:seed` | Seed demo room `live-1`, which goes live in about 5 seconds |
+| `pnpm ddb:crowd` | Add a realistic crowd of players to the demo room and the season board |
+| `pnpm ddb:backfill` | Backfill player profile and per-room history items for players who scored earlier |
+| `pnpm ddb:ttl` | Enable DynamoDB TTL so ephemeral items (answers, WebSocket connections) expire on their own |
+| `pnpm ddb:clean` | Remove the throwaway load-test rooms |
+| `pnpm gt:status`, `gt:enable`, `gt:disable` | Show, add or remove Global Tables replica regions (`gt:enable` adds `eu-west-1` and `ap-northeast-1`, or pass a region) |
+| `pnpm loadtest -- --mode=single\|sharded` | Single-process write load test; compare the two modes to see the hot-partition effect |
+| `pnpm loadtable:up`, `loadtable:down` | Create or **delete** the provisioned `PulseRoomsLoad` table used for the deterministic proof (it bills hourly, so delete it afterwards) |
+| `pnpm loadgen:deploy` | Deploy the in-region load-generator Lambda `pulserooms-loadgen` |
+| `pnpm loadgen -- --mode=both ...` | Fan the load test out across Lambda workers and merge latency results |
+| `pnpm proof` | Write machine-readable evidence (table description and more) to `docs/proof/` |
+
+More: [docs/architecture.md](docs/architecture.md), [docs/cost-at-scale.md](docs/cost-at-scale.md), [lambda/README.md](lambda/README.md).
+
 ---
 
 ## Stack
